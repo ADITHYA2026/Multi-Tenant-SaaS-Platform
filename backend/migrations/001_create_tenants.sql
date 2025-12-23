@@ -1,10 +1,21 @@
 -- UP
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TYPE tenant_status AS ENUM ('active', 'suspended', 'trial');
-CREATE TYPE subscription_plan AS ENUM ('free', 'pro', 'enterprise');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'tenant_status') THEN
+    CREATE TYPE tenant_status AS ENUM ('active', 'suspended', 'trial');
+  END IF;
+END$$;
 
-CREATE TABLE tenants (
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'subscription_plan') THEN
+    CREATE TYPE subscription_plan AS ENUM ('free', 'pro', 'enterprise');
+  END IF;
+END$$;
+
+CREATE TABLE IF NOT EXISTS tenants (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     subdomain VARCHAR(100) UNIQUE NOT NULL,
@@ -15,8 +26,3 @@ CREATE TABLE tenants (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
--- DOWN
-DROP TABLE IF EXISTS tenants;
-DROP TYPE IF EXISTS tenant_status;
-DROP TYPE IF EXISTS subscription_plan;

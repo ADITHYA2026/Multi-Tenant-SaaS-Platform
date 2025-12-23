@@ -1,5 +1,5 @@
 -- UP
-CREATE TABLE audit_logs (
+CREATE TABLE IF NOT EXISTS audit_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     tenant_id UUID REFERENCES tenants(id),
     user_id UUID REFERENCES users(id),
@@ -9,6 +9,3 @@ CREATE TABLE audit_logs (
     ip_address VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
--- DOWN
-DROP TABLE IF EXISTS audit_logs;
