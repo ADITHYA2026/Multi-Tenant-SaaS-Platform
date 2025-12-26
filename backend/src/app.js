@@ -8,13 +8,14 @@ const userRoutes = require('./routes/user.routes');
 const projectRoutes = require('./routes/project.routes');
 const taskRoutes = require('./routes/task.routes');
 const errorHandler = require('./middleware/error.middleware');
+const healthRoutes = require('./routes/health.routes');
 const pool = require('./config/db');
 
 const app = express();
 
 /* ---------- MIDDLEWARE ---------- */
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: ['http://localhost:3000', 'http://frontend:3000'],
   credentials: true
 }));
 
@@ -42,6 +43,7 @@ app.use('/api/tenants', tenantRoutes);
 app.use('/api', userRoutes);
 app.use('/api', projectRoutes);
 app.use('/api', taskRoutes);
+app.use('/api', healthRoutes);
 
 /* ---------- ERROR HANDLER ---------- */
 app.use(errorHandler);
