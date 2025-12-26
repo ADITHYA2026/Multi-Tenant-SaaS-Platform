@@ -1,5 +1,4 @@
--- UP
-CREATE TABLE IF NOT EXISTS audit_logs (
+CREATE TABLE audit_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     tenant_id UUID REFERENCES tenants(id),
     user_id UUID REFERENCES users(id),
