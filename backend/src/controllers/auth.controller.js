@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 /* =========================
-   REGISTER TENANT
+   REGISTER TENANT (API-1)
 ========================= */
 exports.registerTenant = async (req, res, next) => {
   const { tenantName, subdomain, adminEmail, adminPassword, adminFullName } = req.body;
@@ -48,7 +48,7 @@ exports.registerTenant = async (req, res, next) => {
 };
 
 /* =========================
-   LOGIN
+   LOGIN (API-2)
 ========================= */
 exports.login = async (req, res) => {
   const { email, password, tenantSubdomain } = req.body;
@@ -163,4 +163,35 @@ exports.me = async (req, res) => {
     return res.status(404).json({ success: false, message: 'User not found' });
 
   res.json({ success: true, data: result.rows[0] });
+};
+
+// Add this function at the END of your existing auth.controller.js
+// Right after the me() function
+
+/* =========================
+   LOGOUT (API 4)
+========================= */
+exports.logout = async (req, res) => {
+  try {
+    // Log logout action
+    await audit({
+      tenantId: req.user.tenantId,
+      userId: req.user.userId,
+      action: 'LOGOUT',
+      entityType: 'user',
+      entityId: req.user.userId,
+      ip: req.ip
+    });
+
+    res.json({
+      success: true,
+      message: 'Logged out successfully'
+    });
+  } catch (err) {
+    console.error('Logout error:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
+  }
 };
