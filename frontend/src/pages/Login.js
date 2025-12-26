@@ -114,10 +114,10 @@ export default function Login() {
 
       <div style={{ marginTop: '2rem', fontSize: '0.9rem', color: '#666' }}>
         <h4>Test Credentials:</h4>
-        <p><strong>Super Admin:</strong> superadmin@system.com / Admin@123</p>
-        <p><strong>Tenant Admin:</strong> admin@demo.com / Admin@123 (subdomain: demo)</p>
-        <p><strong>Regular User:</strong> user1@demo.com / Admin@123 (subdomain: demo)</p>
-      </div>
+        <p><strong>Super Admin:</strong> superadmin@system.com / Admin@123 (leave subdomain empty)</p>
+        <p><strong>Tenant Admin:</strong> admin@demo.com / Demo@123 (subdomain: demo)</p>
+        <p><strong>Regular User:</strong> user1@demo.com / User@123 (subdomain: demo)</p>
+    </div>
     </div>
   );
 }
