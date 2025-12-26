@@ -2,21 +2,22 @@ version: '3.8'
 
 services:
   database:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: database
     environment:
       POSTGRES_DB: saas_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   backend:
     build: ./backend
@@ -24,21 +25,25 @@ services:
     ports:
       - "5000:5000"
     environment:
+      NODE_ENV: production
       DB_HOST: database
       DB_PORT: 5432
       DB_NAME: saas_db
       DB_USER: postgres
       DB_PASSWORD: postgres
-      JWT_SECRET: dev_secret_key_12345678901234567890
+      JWT_SECRET: dev_secret_key_123456789012345678901234567890
+      JWT_EXPIRES_IN: 24h
       FRONTEND_URL: http://frontend:3000
+      PORT: 5000
     depends_on:
       database:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:5000/api/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/health"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   frontend:
     build: ./frontend
@@ -46,10 +51,12 @@ services:
     ports:
       - "3000:3000"
     environment:
-      REACT_APP_API_URL: http://localhost:5000/api
+      REACT_APP_API_URL: http://backend:5000/api
+      CHOKIDAR_USEPOLLING: true
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
+    stdin_open: true
+    tty: true
 
 volumes:
-  db_data:
+  postgres_data:
