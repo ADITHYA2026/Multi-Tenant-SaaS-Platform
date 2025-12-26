@@ -14,20 +14,14 @@ const pool = new Pool({
 async function runSqlFile(filePath) {
   try {
     const sql = fs.readFileSync(filePath, 'utf8');
-    // Split by semicolon to execute statements separately
-    const statements = sql.split(';').filter(stmt => stmt.trim());
-    
-    for (const statement of statements) {
-      if (statement.trim()) {
-        await pool.query(statement);
-      }
-    }
+    await pool.query(sql);
     console.log(`✓ Executed ${path.basename(filePath)}`);
   } catch (err) {
     console.error(`✗ Error executing ${filePath}:`, err.message);
     throw err;
   }
 }
+
 
 async function waitForDatabase(maxAttempts = 30) {
   for (let i = 1; i <= maxAttempts; i++) {
