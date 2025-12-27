@@ -50,25 +50,26 @@ exports.registerTenant = async (req, res, next) => {
 /* =========================
    LOGIN (API-2)
 ========================= */
+
 exports.login = async (req, res) => {
   const { email, password, tenantSubdomain } = req.body;
 
-  /* ---------- SUPER ADMIN LOGIN ---------- */
-  if (!tenantSubdomain) {
+  // SUPER ADMIN LOGIN
+  if (email === 'superadmin@system.com') {
     const superAdminRes = await pool.query(
-      `SELECT * FROM users
-       WHERE email=$1 AND role='super_admin' AND tenant_id IS NULL`,
+      `SELECT * FROM users WHERE email=$1 AND role='super_admin' AND tenant_id IS NULL`,
       [email]
     );
 
-    if (!superAdminRes.rowCount)
+    if (!superAdminRes.rowCount) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
 
     const user = superAdminRes.rows[0];
-
     const valid = await bcrypt.compare(password, user.password_hash);
-    if (!valid)
+    if (!valid) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
 
     const token = jwt.sign(
       { userId: user.id, tenantId: null, role: 'super_admin' },
@@ -92,27 +93,48 @@ exports.login = async (req, res) => {
     });
   }
 
-  /* ---------- TENANT USER LOGIN ---------- */
+  // TENANT USER LOGIN
+  if (!tenantSubdomain) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Tenant subdomain is required for tenant users' 
+    });
+  }
+
+  // Get tenant
   const tenantRes = await pool.query(
     `SELECT * FROM tenants WHERE subdomain=$1 AND status='active'`,
     [tenantSubdomain]
   );
 
-  if (!tenantRes.rowCount)
+  if (!tenantRes.rowCount) {
     return res.status(404).json({ success: false, message: 'Tenant not found' });
+  }
 
+  const tenant = tenantRes.rows[0];
+
+  // Get user within that tenant
   const userRes = await pool.query(
     `SELECT * FROM users WHERE email=$1 AND tenant_id=$2`,
-    [email, tenantRes.rows[0].id]
+    [email, tenant.id]
   );
 
-  if (!userRes.rowCount)
+  if (!userRes.rowCount) {
     return res.status(401).json({ success: false, message: 'Invalid credentials' });
+  }
 
   const user = userRes.rows[0];
+  
+  // Check if user is active
+  if (!user.is_active) {
+    return res.status(403).json({ success: false, message: 'Account is inactive' });
+  }
+
+  // Verify password
   const valid = await bcrypt.compare(password, user.password_hash);
-  if (!valid)
+  if (!valid) {
     return res.status(401).json({ success: false, message: 'Invalid credentials' });
+  }
 
   const token = jwt.sign(
     { userId: user.id, tenantId: user.tenant_id, role: user.role },
@@ -128,7 +150,8 @@ exports.login = async (req, res) => {
         email: user.email,
         fullName: user.full_name,
         role: user.role,
-        tenantId: user.tenant_id
+        tenantId: user.tenant_id,
+        isActive: user.is_active
       },
       token,
       expiresIn: 86400

@@ -4,7 +4,7 @@ SELECT
     uuid_generate_v4(),
     NULL,
     'superadmin@system.com',
-    '$2b$10$Gcj5hNEJSS5S2bLmTouU7.YppCIPZG/VxqnbxRmidVLmFSbriY7hi',
+    '$2b$10$zz/HcYGYAaeJXHlo9uUE1OsASCtNtK7ynA15okNhx8JbGqK5qdhau',
     'System Admin',
     'super_admin'
 WHERE NOT EXISTS (
@@ -31,7 +31,7 @@ SELECT
     uuid_generate_v4(),
     t.id,
     'admin@demo.com',
-    '$2b$10$jsOCEEeAGq3H7rirsUHeKOjRCIkjezMDVFrdmmKoonHlMi9v7VFj.',
+    '$2b$10$MKj3UDv5dfV9RmZcoK7hHeM9kKcuTf5NVyNOYfSjzocpfTMSZZK2K',
     'Demo Admin',
     'tenant_admin'
 FROM tenants t
@@ -46,7 +46,7 @@ SELECT
     uuid_generate_v4(),
     t.id,
     'user1@demo.com',
-    '$2b$10$pYWBYjyUo79JxlniR.opquF6litp7F2G9jexJxLnkiJD.usZR8CkK',
+    '$2b$10$yASilDqgAIV/9fq0W/ZmoOvTx7APuLhy2PodhbYzibmop/mSd0XoG',
     'User One',
     'user'
 FROM tenants t
@@ -60,7 +60,7 @@ SELECT
     uuid_generate_v4(),
     t.id,
     'user2@demo.com',
-    '$2b$10$pYWBYjyUo79JxlniR.opquF6litp7F2G9jexJxLnkiJD.usZR8CkK',
+    '$2b$10$yASilDqgAIV/9fq0W/ZmoOvTx7APuLhy2PodhbYzibmop/mSd0XoG',
     'User Two',
     'user'
 FROM tenants t

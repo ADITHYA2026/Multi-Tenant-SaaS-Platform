@@ -65,6 +65,50 @@ exports.listTenants = async (req, res) => {
     return res.status(403).json({ success: false, message: 'Forbidden' });
   }
 
-  const tenants = await pool.query('SELECT * FROM tenants ORDER BY created_at DESC');
-  res.json({ success: true, data: tenants.rows });
+  const { page = 1, limit = 10, status, subscriptionPlan } = req.query;
+  const offset = (page - 1) * limit;
+
+  let query = `
+    SELECT t.*,
+      (SELECT COUNT(*) FROM users u WHERE u.tenant_id = t.id) as total_users,
+      (SELECT COUNT(*) FROM projects p WHERE p.tenant_id = t.id) as total_projects
+    FROM tenants t
+    WHERE 1=1
+  `;
+  
+  const params = [];
+  let paramCount = 1;
+
+  if (status) {
+    query += ` AND t.status = $${paramCount++}`;
+    params.push(status);
+  }
+
+  if (subscriptionPlan) {
+    query += ` AND t.subscription_plan = $${paramCount++}`;
+    params.push(subscriptionPlan);
+  }
+
+  query += ` ORDER BY t.created_at DESC LIMIT $${paramCount++} OFFSET $${paramCount++}`;
+  params.push(parseInt(limit), offset);
+
+  const tenantsRes = await pool.query(query, params);
+  
+  // Get total count
+  const countQuery = `SELECT COUNT(*) as total FROM tenants WHERE 1=1`;
+  const countRes = await pool.query(countQuery);
+  const total = parseInt(countRes.rows[0].total);
+
+  res.json({
+    success: true,
+    data: {
+      tenants: tenantsRes.rows,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / limit),
+        totalTenants: total,
+        limit: parseInt(limit)
+      }
+    }
+  });
 };
