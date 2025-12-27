@@ -95,9 +95,9 @@ No tenant subdomain needed
 ### Demo Tenant
 ```
 Subdomain: demo
-Admin: admin@demo.com / Admin@123
-User 1: user1@demo.com / Admin@123
-User 2: user2@demo.com / Admin@123
+Admin: admin@demo.com / Demo@123
+User 1: user1@demo.com / User@123
+User 2: user2@demo.com / User@123
 ```
 
 ### Try Registration
@@ -497,5 +497,6 @@ For issues or questions:
 3. **Test the complete flow** from registration to task management
 4. **Record demo video** showing all features
 5. **Submit the project**
+
 
 Your README.md is now professional, comprehensive, and meets all Partnr requirements!
